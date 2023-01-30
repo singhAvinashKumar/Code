@@ -35,7 +35,7 @@ public class UserController {
         Iterable<UserInfo> allUser = userService.getAllUser();
         return ResponseEntity.ok().body(new CustomResponseBody(uuid,new Date(),
                 uuid, new Body(allUser),
-                new Status(0, ""),
+                new Status(0, "",HttpStatus.OK),
                 "getAllUser" ));
 
     }

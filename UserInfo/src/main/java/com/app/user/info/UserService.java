@@ -3,6 +3,8 @@ package com.app.user.info;
 import com.app.user.model.ChangePassword;
 import com.app.user.model.ResponseBody.Status;
 import com.app.user.model.UserInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,8 @@ import java.util.Optional;
 public class UserService {
     @Autowired
     private UserRepo repo;
+
+    private Logger logger = LoggerFactory.getLogger(UserService.class);
     @Autowired
     private PasswordEncoder encoder;
     public Iterable<UserInfo> getAllUser() {
@@ -56,8 +60,12 @@ public class UserService {
             return new Status(2170,"Invalid Password", HttpStatus.BAD_REQUEST);
 
         List<String> byPreviousPassword = info.get().getPreviousPassword();
-        String finalFetchPassword = fetchPassword;
-        if (byPreviousPassword.stream().anyMatch(hash -> encoder.matches(finalFetchPassword,hash)))
+
+        if (byPreviousPassword.stream().anyMatch(hash -> {
+                    logger.info(hash+" , "+form.getNewPassword());
+                    return encoder.matches(form.getNewPassword(),hash);
+        }
+            ))
             return new Status(2170,"Password used Recently",HttpStatus.NOT_ACCEPTABLE);
 
         info.get().setPassword(encoder.encode(form.getNewPassword()));
